@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notes App</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #f7f7f5;
+      color: #1a1a1a;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
+    /* ── AUTH ── */
+    #auth-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-box {
+      background: #fff;
+      border: 1px solid #e8e8e5;
+      border-radius: 12px;
+      padding: 40px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .auth-logo {
+      margin-bottom: 28px;
+    }
+
+    .auth-logo h1 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .auth-logo p { color: #888; font-size: 0.85rem; }
+
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid #e8e8e5;
+      margin-bottom: 24px;
+      gap: 0;
+    }
+
+    .auth-tab {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #888;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 8px 16px 10px;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+    }
+
+    .auth-tab.active {
+      color: #1a1a1a;
+      border-bottom-color: #1a1a1a;
+    }
+
+    .form-group { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    input, textarea {
+      width: 100%;
+      background: #fafaf8;
+      border: 1px solid #e8e8e5;
+      border-radius: 7px;
+      color: #1a1a1a;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+      resize: none;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #1a1a1a;
+      background: #fff;
+    }
+
+    input::placeholder, textarea::placeholder { color: #bbb; }
+
+    .btn-primary {
+      width: 100%;
+      background: #1a1a1a;
+      border: none;
+      border-radius: 7px;
+      color: #fff;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 10px;
+      margin-top: 6px;
+      transition: opacity 0.15s;
+    }
+
+    .btn-primary:hover { opacity: 0.85; }
+
+    /* ── APP ── */
+    #app-screen { display: none; }
+
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e8e8e5;
+      padding: 0 40px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .app-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-chip {
+      background: #f7f7f5;
+      border: 1px solid #e8e8e5;
+      border-radius: 20px;
+      color: #666;
+      font-size: 0.78rem;
+      padding: 4px 12px;
+    }
+
+    .user-chip strong { color: #1a1a1a; }
+
+    .btn-logout {
+      background: none;
+      border: 1px solid #e8e8e5;
+      border-radius: 7px;
+      color: #888;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      padding: 5px 12px;
+      transition: all 0.15s;
+    }
+
+    .btn-logout:hover { border-color: #e05252; color: #e05252; }
+
+    main {
+      max-width: 860px;
+      margin: 36px auto;
+      padding: 0 24px;
+    }
+
+    /* Add note */
+    .add-card {
+      background: #fff;
+      border: 1px solid #e8e8e5;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+
+    .add-card textarea { height: 80px; margin-bottom: 10px; }
+
+    .add-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .add-row input { flex: 1; }
+
+    .btn-add {
+      background: #1a1a1a;
+      border: none;
+      border-radius: 7px;
+      color: #fff;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 9px 20px;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+
+    .btn-add:hover { opacity: 0.82; }
+
+    /* Section header */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .notes-count {
+      font-size: 0.75rem;
+      color: #bbb;
+    }
+
+    /* Notes grid */
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+
+    .note-card {
+      background: #fff;
+      border: 1px solid #e8e8e5;
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.15s;
+      cursor: default;
+    }
+
+    .note-card:hover { border-color: #ccc; }
+
+    .note-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #1a1a1a;
+      line-height: 1.3;
+    }
+
+    .note-content {
+      color: #666;
+      font-size: 0.83rem;
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .note-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 8px;
+      border-top: 1px solid #f0f0ec;
+      margin-top: 4px;
+    }
+
+    .note-date { color: #bbb; font-size: 0.72rem; }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: #ccc;
+      cursor: pointer;
+      font-size: 0.72rem;
+      padding: 2px 0;
+      transition: color 0.15s;
+    }
+
+    .btn-delete:hover { color: #e05252; }
+
+    /* Empty */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      color: #bbb;
+    }
+
+    .empty-icon { font-size: 1.8rem; margin-bottom: 12px; }
+    .empty-state p { font-size: 0.88rem; line-height: 1.6; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: #1a1a1a;
+      border-radius: 8px;
+      color: #fff;
+      padding: 11px 16px;
+      font-size: 0.83rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      transform: translateY(70px);
+      opacity: 0;
+      transition: all 0.25s ease;
+      z-index: 100;
+    }
+
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.error { background: #e05252; }
+
+    @media (max-width: 600px) {
+      header { padding: 0 16px; }
+      main { padding: 0 16px; margin-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <h1>Notes</h1>
+      <p>Your personal space to write anything</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+      <button class="auth-tab" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <div id="login-form">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="login-username" placeholder="Enter your username" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Enter your password"
+          onkeydown="if(event.key==='Enter') login()" />
+      </div>
+      <button class="btn-primary" onclick="login()">Login</button>
+    </div>
+
+    <div id="register-form" style="display:none">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="reg-username" placeholder="Choose a username" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="reg-password" placeholder="At least 6 characters"
+          onkeydown="if(event.key==='Enter') register()" />
+      </div>
+      <button class="btn-primary" onclick="register()">Create account</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+  <header>
+    <span class="app-title">Notes</span>
+    <div class="header-right">
+      <div class="user-chip"><strong id="username-display"></strong></div>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="add-card">
+      <div class="add-row">
+        <input type="text" id="note-title" placeholder="Note title..." />
+        <button class="btn-add" onclick="addNote()">Add note</button>
+      </div>
+      <textarea id="note-content" placeholder="Write something..."></textarea>
+    </div>
+
+    <div class="section-header">
+      <span class="section-title">Your notes</span>
+      <span class="notes-count" id="notes-count"></span>
+    </div>
+
+    <div class="notes-grid" id="notes-grid">
+      <div class="empty-state">
+        <div class="empty-icon">📄</div>
+        <p>No notes yet.<br/>Add your first one above.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const API = 'http://localhost:3000/api';
+  let token = localStorage.getItem('token');
+  let currentUser = localStorage.getItem('username');
+
+  if (token) showApp();
+
+  function switchTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach((t, i) => {
+      t.classList.toggle('active', (i === 0) === (tab === 'login'));
+    });
+    document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+  }
+
+  async function register() {
+    const username = document.getElementById('reg-username').value.trim();
+    const password = document.getElementById('reg-password').value;
+    if (!username || !password) return showToast('Fill in all fields.', 'error');
+    try {
+      const res = await fetch(`${API}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (!res.ok) return showToast(data.error, 'error');
+      showToast(data.message);
+      switchTab('login');
+      document.getElementById('login-username').value = username;
+    } catch { showToast('Server not running!', 'error'); }
+  }
+
+  async function login() {
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!username || !password) return showToast('Fill in all fields.', 'error');
+    try {
+      const res = await fetch(`${API}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (!res.ok) return showToast(data.error, 'error');
+      token = data.token;
+      currentUser = data.username;
+      localStorage.setItem('token', token);
+      localStorage.setItem('username', currentUser);
+      showApp();
+    } catch { showToast('Server not running!', 'error'); }
+  }
+
+  function logout() {
+    token = null; currentUser = null;
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'flex';
+  }
+
+  function showApp() {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+    document.getElementById('username-display').textContent = currentUser;
+    loadNotes();
+  }
+
+  function authHeader() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+  }
+
+  async function loadNotes() {
+    try {
+      const res = await fetch(`${API}/notes`, { headers: authHeader() });
+      if (res.status === 401) return logout();
+      const notes = await res.json();
+      renderNotes(notes);
+    } catch { showToast('Could not connect to server.', 'error'); }
+  }
+
+  function renderNotes(notes) {
+    const grid = document.getElementById('notes-grid');
+    document.getElementById('notes-count').textContent = `${notes.length} note${notes.length !== 1 ? 's' : ''}`;
+
+    if (notes.length === 0) {
+      grid.innerHTML = `<div class="empty-state"><div class="empty-icon">📄</div><p>No notes yet.<br/>Add your first one above.</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = [...notes].reverse().map(note => `
+      <div class="note-card">
+        <div class="note-title">${note.title}</div>
+        <div class="note-content">${note.content}</div>
+        <div class="note-footer">
+          <span class="note-date">${new Date(note.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+          <button class="btn-delete" onclick="deleteNote('${note.id}')">Delete</button>
+        </div>
+      </div>`).join('');
+  }
+
+  async function addNote() {
+    const title = document.getElementById('note-title').value.trim();
+    const content = document.getElementById('note-content').value.trim();
+    if (!title) return showToast('Please enter a title.', 'error');
+    if (!content) return showToast('Please write something.', 'error');
+    try {
+      const res = await fetch(`${API}/notes`, {
+        method: 'POST',
+        headers: authHeader(),
+        body: JSON.stringify({ title, content })
+      });
+      if (res.status === 401) return logout();
+      if (!res.ok) return showToast((await res.json()).error, 'error');
+      document.getElementById('note-title').value = '';
+      document.getElementById('note-content').value = '';
+      showToast('Note added!');
+      loadNotes();
+    } catch { showToast('Server not running!', 'error'); }
+  }
+
+  async function deleteNote(id) {
+    if (!confirm('Delete this note?')) return;
+    try {
+      await fetch(`${API}/notes/${id}`, { method: 'DELETE', headers: authHeader() });
+      showToast('Deleted.');
+      loadNotes();
+    } catch { showToast('Could not delete.', 'error'); }
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `show ${type}`;
+    setTimeout(() => t.className = '', 2800);
+  }
+</script>
+</body>
+</html>
